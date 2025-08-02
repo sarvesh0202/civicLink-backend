@@ -4,13 +4,28 @@ import path from 'path';
 import Issue from '../models/Issue.js';
 import User from '../models/User.js';
 import auth from '../middleware/auth.js';
-
+import fs from 'fs';
 const router = express.Router();
+import { fileURLToPath } from 'url';
 
+// Define __dirname manually for ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// const uploadPath = path.join(__dirname, 'uploads');
+
+// // Ensure directory exists
+// if (!fs.existsSync(uploadPath)) {
+//   fs.mkdirSync(uploadPath, { recursive: true });
+// }
 // Configure multer for file uploads
+const uploadPath = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'server/uploads/');
+    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -142,7 +157,7 @@ router.get('/:id', async (req, res) => {
     if (!issue) {
       return res.status(404).json({ message: 'Issue not found' });
     }
-    
+   console.log(issue);
     res.json(issue);
   } catch (error) {
     console.error('Get issue error:', error);
